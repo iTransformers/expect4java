@@ -17,7 +17,6 @@ import org.apache.oro.text.regex.MatchResult;
 import org.apache.oro.text.regex.Perl5Matcher;
 
 import java.io.*;
-import java.util.Map;
 
 
 public class Expect4jImpl implements Expect4j, Runnable{
@@ -31,15 +30,22 @@ public class Expect4jImpl implements Expect4j, Runnable{
     boolean finished = false;
     Logger logger = Logger.getLogger(Expect4jImpl.class.getName());
 
-    public Expect4jImpl(CLIConnection cliConnection, boolean withLogging) {
+    public Expect4jImpl(CLIConnection cliConnection, boolean withLogging) throws Expect4jException {
         InputStream is = cliConnection.inputStream();
         OutputStream os = cliConnection.outputStream();
+        if (is == null) {
+            throw new Expect4jException("The input stream in the connection is null");
+        }
+        if (os == null) {
+            throw new Expect4jException("The output stream in the connection is null");
+        }
         if (withLogging){
             is = new TeeInputStream(is, new OutputStreamCLILogger(false));
             os = new TeeOutputStream(os, new OutputStreamCLILogger(true));
         }
         this.reader = new InputStreamReader(is);
         this.writer = new OutputStreamWriter(os);
+        init();
     }
 
     public Expect4jImpl(Reader reader, Writer writer) {
