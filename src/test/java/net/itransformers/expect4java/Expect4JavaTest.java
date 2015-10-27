@@ -3,10 +3,7 @@ package net.itransformers.expect4java;
 import net.itransformers.expect4java.cliconnection.impl.EchoCLIConnection;
 import net.itransformers.expect4java.impl.Expect4jException;
 import net.itransformers.expect4java.impl.Expect4jImpl;
-import net.itransformers.expect4java.matches.EofMatch;
-import net.itransformers.expect4java.matches.GlobMatch;
-import net.itransformers.expect4java.matches.Match;
-import net.itransformers.expect4java.matches.RegExpMatch;
+import net.itransformers.expect4java.matches.*;
 import org.apache.commons.lang.mutable.MutableBoolean;
 import org.apache.oro.text.regex.MalformedPatternException;
 import org.junit.Assert;
@@ -49,6 +46,46 @@ public class Expect4JavaTest {
     }
 
     @Test
+    public void testGlob() throws IOException, MalformedPatternException {
+        final MutableBoolean status = new MutableBoolean(false);
+        e4j.send("hello\n");
+        e4j.expect(new GlobMatch("hello\n", it -> {
+            System.out.println("Hello World!");
+            status.setValue(true);
+        }));
+        Assert.assertTrue(status.booleanValue());
+    }
+
+
+    @Test
+    public void testSetTimeout() throws IOException, MalformedPatternException {
+        final MutableBoolean status = new MutableBoolean(false);
+        e4j.setTimeout(new TimeoutMatch(1000L, it -> {
+            status.setValue(true);
+        }));
+
+        e4j.send("hello\n");
+        e4j.expect(new GlobMatch("hello\n", it -> {
+            System.out.println("Hello World!");
+            Thread.sleep(1100);
+            it.exp_continue();
+        }));
+        Assert.assertTrue(status.booleanValue());
+    }
+
+    @Test
+    public void testRegex() throws IOException, MalformedPatternException {
+        final MutableBoolean status = new MutableBoolean(false);
+        e4j.send("hello World\n");
+        e4j.expect(new RegExpMatch("hello ([^\n]*)\n", (ExpectContext context) -> {
+            System.out.println("Hello " + context.getMatch(1));
+            status.setValue(true);
+        }));
+        Assert.assertTrue(status.booleanValue());
+    }
+
+
+    @Test
     public void testRegexpArrTwoMatch() throws IOException, MalformedPatternException {
         final MutableBoolean status = new MutableBoolean(false);
         final MutableBoolean firsMatch = new MutableBoolean(false);
@@ -68,6 +105,7 @@ public class Expect4JavaTest {
 
         Assert.assertTrue(status.booleanValue());
     }
+
 
     @Test
     public void tearDown() throws IOException {
