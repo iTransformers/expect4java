@@ -7,6 +7,10 @@ import org.apache.oro.text.regex.Pattern;
 
 public class GlobMatch extends RegExpMatch {
 
+    public GlobMatch(String pattern) throws MalformedPatternException {
+        super(pattern, null);
+    }
+
     public GlobMatch(String pattern, Closure closure) throws MalformedPatternException {
         super(pattern, closure);
     }
