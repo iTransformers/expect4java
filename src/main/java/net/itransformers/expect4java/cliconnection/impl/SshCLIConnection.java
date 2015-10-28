@@ -21,27 +21,30 @@ public class SshCLIConnection implements CLIConnection {
         if (address == null) {
             throw new RuntimeException("Missing parameter: address");
         }
-        if (!(params.get("port") instanceof Integer)) {
-            throw new RuntimeException("invalid format of port parameter: "+ address);
+        Integer port = 22;
+        if (params.get("port") != null && !(params.get("port") instanceof Integer)) {
+            throw new RuntimeException("invalid format of port parameter: "+ params.get("port"));
+        } else if (params.get("port") != null){
+            port = (Integer)params.get("port");
         }
-        Integer port = (Integer)params.get("port");
+
         String username = (String) params.get("username");
         if (username == null) {
             throw new RuntimeException("Missing parameter: username");
         }
         String password = (String) params.get("password");
-        Integer timeout = 5000;
+        Integer timeout;
         if (params.get("timeout") != null && !( params.get("timeout") instanceof Integer)) {
             throw new RuntimeException("invalid format of timeout parameter: "+ params.get("timeout"));
+        } else {
+            timeout = (Integer) params.get("timeout");
         }
-        timeout = (Integer) params.get("timeout");
         JSch jsch = new JSch();
         Hashtable<String,String> config;
         if (params.get("config") != null && !(params.get("config") instanceof Hashtable)){
             throw new RuntimeException("invalid config parameter");
-        } else {
-            config = (Hashtable<String, String>) params.get("config");
         }
+        config = (Hashtable<String, String>) params.get("config");
 
         UserInfo userInfo = null;
         if (params.get("userInfo") != null && (params.get("userInfo") instanceof UserInfo)){
