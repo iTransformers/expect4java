@@ -25,15 +25,16 @@ public class SshCLIConnection implements CLIConnection {
             throw new RuntimeException("invalid format of port parameter: "+ address);
         }
         Integer port = (Integer)params.get("port");
-        String user1 = (String) params.get("username");
-        if (user1 == null) {
+        String username = (String) params.get("username");
+        if (username == null) {
             throw new RuntimeException("Missing parameter: username");
         }
-        String password1 = (String) params.get("password");
+        String password = (String) params.get("password");
+        Integer timeout = 5000;
         if (params.get("timeout") != null && !( params.get("timeout") instanceof Integer)) {
-            throw new RuntimeException("invalid format of timeout parameter: "+ address);
+            throw new RuntimeException("invalid format of timeout parameter: "+ params.get("timeout"));
         }
-        Integer timeout = (Integer)params.get("timeout");
+        timeout = (Integer) params.get("timeout");
         JSch jsch = new JSch();
         Hashtable<String,String> config;
         if (params.get("config") != null && !(params.get("config") instanceof Hashtable)){
@@ -49,9 +50,9 @@ public class SshCLIConnection implements CLIConnection {
 
 
         try {
-            session = jsch.getSession(user1, address, port);
-            if (password1 != null) {
-                session.setPassword(password1);
+            session = jsch.getSession(username, address, port);
+            if (password != null) {
+                session.setPassword(password);
             }
             if (config != null) {
                 session.setConfig(config);
