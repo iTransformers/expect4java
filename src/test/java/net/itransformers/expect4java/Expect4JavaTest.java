@@ -24,7 +24,7 @@ public class Expect4JavaTest {
     public void setUp() throws IOException, Expect4jException {
         cliConnection = new EchoCLIConnection();
         cliConnection.connect(new HashMap<>());
-        e4j = new Expect4jImpl(cliConnection, true);
+        e4j = new Expect4jImpl(cliConnection);
 
 
     }

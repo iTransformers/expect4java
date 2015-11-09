@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class TelnetCLIConnection implements CLIConnection{
 
-    private TelnetClient telnet = new TelnetClient();
+    protected TelnetClient telnet = new TelnetClient();
 
     @Override
     public void connect(Map<String, Object> params) throws IOException {

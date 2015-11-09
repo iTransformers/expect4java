@@ -3,6 +3,7 @@ package net.itransformers.expect4java.impl;
 import net.itransformers.expect4java.Closure;
 import net.itransformers.expect4java.Expect4j;
 import net.itransformers.expect4java.cliconnection.CLIConnection;
+import net.itransformers.expect4java.cliconnection.CLIConnectionLogger;
 import net.itransformers.expect4java.cliconnection.utils.OutputStreamCLILogger;
 import net.itransformers.expect4java.cliconnection.utils.TeeInputStream;
 import net.itransformers.expect4java.cliconnection.utils.TeeOutputStream;
@@ -11,15 +12,15 @@ import net.itransformers.expect4java.matches.Match;
 import net.itransformers.expect4java.matches.RegExpMatch;
 import net.itransformers.expect4java.matches.TimeoutMatch;
 import org.apache.commons.lang3.time.StopWatch;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.apache.oro.text.regex.MatchResult;
 import org.apache.oro.text.regex.Perl5Matcher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 
 
-public class Expect4jImpl implements Expect4j, Runnable{
+public class Expect4jImpl implements Expect4j, Runnable {
 
     public static final long DEFAULT_TIMEOUT = 1000l;
     private final Reader reader;
@@ -28,9 +29,21 @@ public class Expect4jImpl implements Expect4j, Runnable{
     StringBuffer buffer = new StringBuffer(256);
     boolean eofFound = false;
     boolean finished = false;
-    Logger logger = Logger.getLogger(Expect4jImpl.class.getName());
+    Logger logger;
 
-    public Expect4jImpl(CLIConnection cliConnection, boolean withLogging) throws Expect4jException {
+    public Expect4jImpl(CLIConnection cliConnection) throws Expect4jException {
+        this(cliConnection,
+                message -> {
+                    LoggerFactory.getLogger(Expect4jImpl.class).info(">>> " + message);
+                },
+                message -> {
+                    LoggerFactory.getLogger(Expect4jImpl.class).info("<<< " + message);
+                }
+        );
+    }
+
+    public Expect4jImpl(CLIConnection cliConnection, CLIConnectionLogger inConnLogger, CLIConnectionLogger outConnLogger) throws Expect4jException {
+        this.logger = LoggerFactory.getLogger(Expect4jImpl.class);
         InputStream is = cliConnection.inputStream();
         OutputStream os = cliConnection.outputStream();
         if (is == null) {
@@ -39,9 +52,11 @@ public class Expect4jImpl implements Expect4j, Runnable{
         if (os == null) {
             throw new Expect4jException("The output stream in the connection is null");
         }
-        if (withLogging){
-            is = new TeeInputStream(is, new OutputStreamCLILogger(false));
-            os = new TeeOutputStream(os, new OutputStreamCLILogger(true));
+        if (inConnLogger != null) {
+            is = new TeeInputStream(is, new OutputStreamCLILogger(inConnLogger));
+        }
+        if (outConnLogger != null) {
+            os = new TeeOutputStream(os, new OutputStreamCLILogger(outConnLogger));
         }
         this.reader = new InputStreamReader(is);
         this.writer = new OutputStreamWriter(os);
@@ -85,12 +100,12 @@ public class Expect4jImpl implements Expect4j, Runnable{
             synchronized (this) {
                 boolean hasMatch = false;
                 ExpectContextImpl expectContext = null;
-                for (i=0; i < matches.length; i++) {
-                    if (matches[i] instanceof RegExpMatch){
+                for (i = 0; i < matches.length; i++) {
+                    if (matches[i] instanceof RegExpMatch) {
                         RegExpMatch regExpMatch = (RegExpMatch) matches[i];
-                        logger.debug("Checking match No: "+i+", "+regExpMatch.toString().replace("\r","[\\r]").replace("\n","\\n"));
+                        logger.debug("Checking match No: " + i + ", " + regExpMatch.toString().replace("\r", "[\\r]").replace("\n", "\\n"));
                         String input = buffer.toString();
-                        logger.debug("Input: "+input.replace("\r","[\\r]").replace("\n","\\n"));
+                        logger.debug("Input: " + input.replace("\r", "[\\r]").replace("\n", "\\n"));
                         if (matcher.contains(input, regExpMatch.getPattern())) {
                             MatchResult result = matcher.getMatch();
                             buffer = new StringBuffer();
@@ -100,7 +115,7 @@ public class Expect4jImpl implements Expect4j, Runnable{
                             hasMatch = true;
                             break;
                         }
-                    } else if (matches[i] instanceof EofMatch){
+                    } else if (matches[i] instanceof EofMatch) {
                         logger.debug("Checking match No: " + i + ", EofMatch");
                         if (eofFound) {
                             logger.debug("EOF found! Invoking match closure...");
@@ -111,19 +126,19 @@ public class Expect4jImpl implements Expect4j, Runnable{
                         }
                     }
                 }
-                if (!hasMatch){
+                if (!hasMatch) {
                     TimeoutMatch timeoutMatch = findTimeoutMatch(matches);
                     long deltaTime = timeoutMatch.getTimeout() - stopWatch.getTime();
-                    logger.debug("First pass no match found. Delta time="+deltaTime);
+                    logger.debug("First pass no match found. Delta time=" + deltaTime);
                     if (deltaTime <= 0) {
                         if (timeoutMatch.getClosure() == null) {
-                            throw new RuntimeException("Expect timeouted, while expecting: "+
-                                    matchesToDump(matches) + " input buffer:"+buffer.toString());
+                            throw new RuntimeException("Expect timeouted, while expecting: " +
+                                    matchesToDump(matches) + " input buffer:" + buffer.toString());
                         }
                         logger.debug("Timeout exceeded. Invoking timeout closure");
                         expectContext = invokeClosure(timeoutMatch, buffer.toString(), null);
-                        logger.debug("exp_continue: "+expectContext.isExpContinue() +
-                                ", reset_timer: "+expectContext.isResetTimer());
+                        logger.debug("exp_continue: " + expectContext.isExpContinue() +
+                                ", reset_timer: " + expectContext.isResetTimer());
                         if (expectContext.isExpContinue() && expectContext.isResetTimer()) {
                             logger.debug("Resetting stopWatch");
                             stopWatch.reset();
@@ -132,13 +147,13 @@ public class Expect4jImpl implements Expect4j, Runnable{
                             break;
                         }
                     } else {
-                        logger.debug("wait for input for "+deltaTime+" ms");
+                        logger.debug("wait for input for " + deltaTime + " ms");
                         waitForInput(deltaTime);
                     }
                 } else {
                     logger.debug("First pass no match found. ");
-                    logger.debug("exp_continue: "+expectContext.isExpContinue()+
-                            ", reset_timer: "+expectContext.isResetTimer());
+                    logger.debug("exp_continue: " + expectContext.isExpContinue() +
+                            ", reset_timer: " + expectContext.isResetTimer());
                     if (!expectContext.isExpContinue()) {
                         logger.debug("Exit expect method due to exp_continue=false");
                         break;
@@ -158,10 +173,12 @@ public class Expect4jImpl implements Expect4j, Runnable{
     private synchronized void waitForInput(Long timeout) {
         try {
             wait(timeout);
-        } catch (InterruptedException e) { throw new RuntimeException(e); }
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    private TimeoutMatch findTimeoutMatch(Match[] matches){
+    private TimeoutMatch findTimeoutMatch(Match[] matches) {
         for (Match match : matches) {
             if (match instanceof TimeoutMatch) {
                 return (TimeoutMatch) match;
@@ -212,15 +229,16 @@ public class Expect4jImpl implements Expect4j, Runnable{
                 }
             }
         } catch (IOException e) {
-            logger.log(Level.DEBUG,"IO Error in run method",e);
+            logger.debug("IO Error in run method", e);
         }
     }
-    public void close(){
+
+    public void close() {
         finished = true;
 
     }
 
-    private String matchesToDump(Match[] matches){
+    private String matchesToDump(Match[] matches) {
         StringBuilder sb = new StringBuilder();
         for (Match match : matches) {
             sb.append(match.toString());

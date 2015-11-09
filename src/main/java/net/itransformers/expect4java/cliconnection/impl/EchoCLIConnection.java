@@ -7,8 +7,8 @@ import java.util.Map;
 
 public class EchoCLIConnection implements CLIConnection{
     public static int BUFFER = 4*1024;
-    PipedInputStream inputStream = new PipedInputStream(BUFFER);
-    private PipedOutputStream outputStream;
+    protected PipedInputStream inputStream = new PipedInputStream(BUFFER);
+    protected PipedOutputStream outputStream;
 
     @Override
     public void connect(Map<String, Object> params) throws IOException {

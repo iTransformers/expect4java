@@ -10,11 +10,10 @@ import java.util.Hashtable;
 import java.util.Map;
 
 public class SshCLIConnection implements CLIConnection {
-    public static final int DEFAULT_TIMEOUT = 60000;
-    private ChannelShell channel;
-    Session session;
-    private InputStream inputStream;
-    private OutputStream outputStream;
+    protected ChannelShell channel;
+    protected Session session;
+    protected InputStream inputStream;
+    protected OutputStream outputStream;
 
     public void connect(Map<String, Object> params) throws IOException {
         String address = (String) params.get("address");

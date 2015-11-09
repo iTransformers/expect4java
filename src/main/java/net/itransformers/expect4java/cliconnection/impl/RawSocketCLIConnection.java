@@ -10,10 +10,10 @@ import java.net.Socket;
 import java.util.Map;
 
 public class RawSocketCLIConnection implements CLIConnection {
-    private Socket socket;
-    private InputStream inputStream;
-    private OutputStream outputStream;
-    private Logger logger = Logger.getLogger(RawSocketCLIConnection.class.getName());
+    protected Socket socket;
+    protected InputStream inputStream;
+    protected OutputStream outputStream;
+    protected Logger logger = Logger.getLogger(RawSocketCLIConnection.class.getName());
 
     public RawSocketCLIConnection() {
     }

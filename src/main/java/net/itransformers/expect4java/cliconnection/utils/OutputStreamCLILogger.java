@@ -1,24 +1,24 @@
 package net.itransformers.expect4java.cliconnection.utils;
 
-import org.apache.log4j.Logger;
+import net.itransformers.expect4java.cliconnection.CLIConnectionLogger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
 public class OutputStreamCLILogger extends OutputStream {
-    Logger logger = Logger.getLogger(OutputStreamCLILogger.class.getName());
+    CLIConnectionLogger logger;
 
-    private ByteArrayOutputStream os;
-    private boolean isOutputLogging;
+    protected ByteArrayOutputStream os;
 
-    public OutputStreamCLILogger(boolean isOutputLogging) {
-        this.isOutputLogging = isOutputLogging;
+    public OutputStreamCLILogger(CLIConnectionLogger logger) {
         os = new ByteArrayOutputStream();
+        this.logger = logger;
     }
-    public OutputStreamCLILogger(boolean isOutputLogging, int size) {
-        this.isOutputLogging = isOutputLogging;
+
+    public OutputStreamCLILogger(CLIConnectionLogger logger, int size) {
         os = new ByteArrayOutputStream(size);
+        this.logger = logger;
     }
 
     @Override
@@ -51,16 +51,12 @@ public class OutputStreamCLILogger extends OutputStream {
         }
     }
 
-    private void doFlush(){
-        if (isOutputLogging) {
-            logger.info(">>> " + os.toString());
-        } else {
-            logger.info("<<< " + os.toString());
-        }
+    protected void doFlush(){
+        logger.log(os.toString());
         os.reset();
     }
 
-    private void doWrite(int b) throws IOException {
+    protected void doWrite(int b) throws IOException {
         if (b < 32){ // non printable characters
             switch (b) {
                 case 0x0D : os.write(("[\\r]").getBytes()); break;
