@@ -6,11 +6,8 @@
 
     <groupId>iTransformers</groupId>
     <artifactId>expect4java</artifactId>
-    <packaging>pom</packaging>
-    <version>1.1.5</version>
-    <modules>
-        <module>examples</module>
-    </modules>
+    <packaging>jar</packaging>
+    <version>1.1.6</version>
 
 
     <name>Expect for Java library</name>
