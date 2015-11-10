@@ -3,7 +3,7 @@ package net.itransformers.expect4java.impl;
 import net.itransformers.expect4java.Closure;
 import net.itransformers.expect4java.Expect4j;
 import net.itransformers.expect4java.cliconnection.CLIConnection;
-import net.itransformers.expect4java.cliconnection.CLIConnectionLogger;
+import net.itransformers.expect4java.cliconnection.CLIStreamLogger;
 import net.itransformers.expect4java.cliconnection.utils.OutputStreamCLILogger;
 import net.itransformers.expect4java.cliconnection.utils.TeeInputStream;
 import net.itransformers.expect4java.cliconnection.utils.TeeOutputStream;
@@ -42,7 +42,7 @@ public class Expect4jImpl implements Expect4j, Runnable {
         );
     }
 
-    public Expect4jImpl(CLIConnection cliConnection, CLIConnectionLogger inConnLogger, CLIConnectionLogger outConnLogger) throws Expect4jException {
+    public Expect4jImpl(CLIConnection cliConnection, CLIStreamLogger inStreamLogger, CLIStreamLogger outStreamLogger) throws Expect4jException {
         this.logger = LoggerFactory.getLogger(Expect4jImpl.class);
         InputStream is = cliConnection.inputStream();
         OutputStream os = cliConnection.outputStream();
@@ -52,11 +52,11 @@ public class Expect4jImpl implements Expect4j, Runnable {
         if (os == null) {
             throw new Expect4jException("The output stream in the connection is null");
         }
-        if (inConnLogger != null) {
-            is = new TeeInputStream(is, new OutputStreamCLILogger(inConnLogger));
+        if (inStreamLogger != null) {
+            is = new TeeInputStream(is, new OutputStreamCLILogger(inStreamLogger));
         }
-        if (outConnLogger != null) {
-            os = new TeeOutputStream(os, new OutputStreamCLILogger(outConnLogger));
+        if (outStreamLogger != null) {
+            os = new TeeOutputStream(os, new OutputStreamCLILogger(outStreamLogger));
         }
         this.reader = new InputStreamReader(is);
         this.writer = new OutputStreamWriter(os);

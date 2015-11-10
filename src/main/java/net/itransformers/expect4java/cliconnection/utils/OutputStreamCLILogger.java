@@ -1,22 +1,22 @@
 package net.itransformers.expect4java.cliconnection.utils;
 
-import net.itransformers.expect4java.cliconnection.CLIConnectionLogger;
+import net.itransformers.expect4java.cliconnection.CLIStreamLogger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
 public class OutputStreamCLILogger extends OutputStream {
-    CLIConnectionLogger logger;
+    CLIStreamLogger logger;
 
     protected ByteArrayOutputStream os;
 
-    public OutputStreamCLILogger(CLIConnectionLogger logger) {
+    public OutputStreamCLILogger(CLIStreamLogger logger) {
         os = new ByteArrayOutputStream();
         this.logger = logger;
     }
 
-    public OutputStreamCLILogger(CLIConnectionLogger logger, int size) {
+    public OutputStreamCLILogger(CLIStreamLogger logger, int size) {
         os = new ByteArrayOutputStream(size);
         this.logger = logger;
     }

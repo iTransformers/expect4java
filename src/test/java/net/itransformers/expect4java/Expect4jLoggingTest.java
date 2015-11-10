@@ -1,6 +1,5 @@
 package net.itransformers.expect4java;
 
-import net.itransformers.expect4java.cliconnection.CLIConnectionLogger;
 import net.itransformers.expect4java.cliconnection.impl.EchoCLIConnection;
 import net.itransformers.expect4java.impl.Expect4jException;
 import net.itransformers.expect4java.impl.Expect4jImpl;
@@ -12,14 +11,9 @@ import org.apache.oro.text.regex.MalformedPatternException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.util.Arrays;
 import java.util.HashMap;
 
 /**
