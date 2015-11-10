@@ -1,0 +1,5 @@
+username=vasko
+password=123
+address=localhost
+ssh_port=22
+timeout=2000

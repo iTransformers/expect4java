@@ -6,12 +6,16 @@
 
     <groupId>iTransformers</groupId>
     <artifactId>expect4java</artifactId>
-    <version>1.1</version>
+    <packaging>pom</packaging>
+    <version>1.1.1</version>
+    <modules>
+        <module>examples</module>
+    </modules>
 
 
-    <name>Expect for Groovy library</name>
-    <description>This library is an implementation of DSL Expect for Groovy language</description>
-    <url>https://github.com/iTransformers/expect4groovy</url>
+    <name>Expect for Java library</name>
+    <description>This library is an implementation of DSL Expect for Java language</description>
+    <url>https://github.com/iTransformers/expect4java</url>
 
     <licenses>
         <license>
@@ -28,9 +32,9 @@
     </developers>
 
     <scm>
-        <connection>https://github.com/iTransformers/expect4groovy.git</connection>
-        <developerConnection>https://github.com/iTransformers/expect4groovy.git</developerConnection>
-        <url>https://github.com/iTransformers/expect4groovy</url>
+        <connection>https://github.com/iTransformers/expect4java.git</connection>
+        <developerConnection>https://github.com/iTransformers/expect4java.git</developerConnection>
+        <url>https://github.com/iTransformers/expect4java</url>
     </scm>
 
 
@@ -48,7 +52,7 @@
         <dependency>
             <groupId>com.jcraft</groupId>
             <artifactId>jsch</artifactId>
-            <version>0.1.44-1</version>
+            <version>0.1.52</version>
         </dependency>
         <dependency>
             <groupId>commons-net</groupId>

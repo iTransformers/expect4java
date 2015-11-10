@@ -11,7 +11,7 @@ public interface Expect4j {
     int expect(Match match);
     int expect(Match[] matches);
     void setTimeout(TimeoutMatch timeoutMatch);
-    void close();
+    void close() throws IOException;
     Reader getReader();
     Writer getWriter();
 }

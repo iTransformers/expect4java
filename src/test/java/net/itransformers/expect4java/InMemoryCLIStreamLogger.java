@@ -8,16 +8,17 @@ import java.util.List;
 /**
  * Created by vasko on 09.11.15.
  */
-public class InMemoryCLIConnectionLogger implements CLIStreamLogger {
+public class InMemoryCLIStreamLogger implements CLIStreamLogger {
     private final String prefix;
 
-    public InMemoryCLIConnectionLogger(String prefix) {
+    public InMemoryCLIStreamLogger(String prefix) {
         this.prefix = prefix;
     }
 
     private List<String> messages = new ArrayList<>();
     @Override
     public void log(String message) {
+        System.out.println(prefix + message);
         messages.add(prefix + message);
     }
 

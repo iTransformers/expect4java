@@ -1,6 +1,8 @@
 package net.itransformers.expect4java;
 
+import net.itransformers.expect4java.cliconnection.CLIConnection;
 import net.itransformers.expect4java.cliconnection.impl.EchoCLIConnection;
+import net.itransformers.expect4java.cliconnection.impl.LoggableCLIConnection;
 import net.itransformers.expect4java.impl.Expect4jException;
 import net.itransformers.expect4java.impl.Expect4jImpl;
 import net.itransformers.expect4java.matches.EofMatch;
@@ -21,18 +23,18 @@ import java.util.HashMap;
  */
 public class Expect4jLoggingTest {
     private Expect4jImpl e4j;
-    private EchoCLIConnection cliConnection;
-    private InMemoryCLIConnectionLogger inLogger;
-    private InMemoryCLIConnectionLogger outLogger;
+    private CLIConnection cliConnection;
+    private InMemoryCLIStreamLogger inLogger;
+    private InMemoryCLIStreamLogger outLogger;
 
     @Before
     public void setUp() throws IOException, Expect4jException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-        cliConnection = new EchoCLIConnection();
+        inLogger = new InMemoryCLIStreamLogger("(localhost) >>> ");
+        outLogger = new InMemoryCLIStreamLogger("(nms) <<< ");
+        cliConnection = new LoggableCLIConnection(new EchoCLIConnection(), inLogger, outLogger);
         cliConnection.connect(new HashMap<>());
-        inLogger = new InMemoryCLIConnectionLogger("(localhost) >>> ");
-        outLogger = new InMemoryCLIConnectionLogger("(nms) <<< ");
 
-        e4j = new Expect4jImpl(cliConnection, inLogger, outLogger);
+        e4j = new Expect4jImpl(cliConnection);
 
 
     }
@@ -57,6 +59,27 @@ public class Expect4jLoggingTest {
         Assert.assertEquals("(nms) <<< hello[\\n]", outLogger.getMessages().get(0));
     }
 
+    @Test
+    public void testLogging() throws IOException, MalformedPatternException {
+        final MutableBoolean status = new MutableBoolean(false);
+        e4j.send("h");
+        e4j.send("ello\n");
+        e4j.expect(new Match[]{
+                new GlobMatch("hello\n", it -> {
+                    System.out.println("Hello World!");
+                    e4j.getWriter().close();
+                    System.out.println("reader closed");
+                    it.exp_continue();
+                }),
+                new EofMatch(it1 -> status.setValue(true))
+        });
+        Assert.assertTrue(status.booleanValue());
+        Assert.assertEquals(1, inLogger.getMessages().size());
+        Assert.assertEquals("(localhost) >>> hello[\\n]", inLogger.getMessages().get(0));
+        Assert.assertEquals(1, outLogger.getMessages().size());
+        Assert.assertEquals("(nms) <<< hello[\\n]", outLogger.getMessages().get(0));
+
+    }
 
     @Test
     public void tearDown() throws IOException {

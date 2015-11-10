@@ -11,27 +11,16 @@ public class TeeInputStream extends FilterInputStream {
 
     Logger logger = Logger.getLogger(TeeInputStream.class.getName());
     private final OutputStream branch;
-    private final boolean closeBranch;
+
 
     public TeeInputStream(InputStream input, OutputStream branch) {
-        this(input, branch, false);
-    }
-
-    public TeeInputStream(InputStream input, OutputStream branch, boolean closeBranch) {
         super(input);
         this.branch = branch;
-        this.closeBranch = closeBranch;
     }
 
     public void close() throws IOException {
         logger.info("Closing input stream.");
-        try {
-            super.close();
-        } finally {
-            if (closeBranch) {
-                branch.close();
-            }
-        }
+        super.close();
     }
 
     public int read() throws IOException {

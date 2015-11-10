@@ -32,17 +32,6 @@ public class Expect4jImpl implements Expect4j, Runnable {
     Logger logger;
 
     public Expect4jImpl(CLIConnection cliConnection) throws Expect4jException {
-        this(cliConnection,
-                message -> {
-                    LoggerFactory.getLogger(Expect4jImpl.class).info(">>> " + message);
-                },
-                message -> {
-                    LoggerFactory.getLogger(Expect4jImpl.class).info("<<< " + message);
-                }
-        );
-    }
-
-    public Expect4jImpl(CLIConnection cliConnection, CLIStreamLogger inStreamLogger, CLIStreamLogger outStreamLogger) throws Expect4jException {
         this.logger = LoggerFactory.getLogger(Expect4jImpl.class);
         InputStream is = cliConnection.inputStream();
         OutputStream os = cliConnection.outputStream();
@@ -51,12 +40,6 @@ public class Expect4jImpl implements Expect4j, Runnable {
         }
         if (os == null) {
             throw new Expect4jException("The output stream in the connection is null");
-        }
-        if (inStreamLogger != null) {
-            is = new TeeInputStream(is, new OutputStreamCLILogger(inStreamLogger));
-        }
-        if (outStreamLogger != null) {
-            os = new TeeOutputStream(os, new OutputStreamCLILogger(outStreamLogger));
         }
         this.reader = new InputStreamReader(is);
         this.writer = new OutputStreamWriter(os);

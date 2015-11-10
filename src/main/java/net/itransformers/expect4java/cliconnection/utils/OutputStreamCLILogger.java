@@ -8,6 +8,7 @@ import java.io.OutputStream;
 
 public class OutputStreamCLILogger extends OutputStream {
     CLIStreamLogger logger;
+    char lastCharacter;
 
     protected ByteArrayOutputStream os;
 
@@ -24,7 +25,6 @@ public class OutputStreamCLILogger extends OutputStream {
     @Override
     public void write(byte[] bytes) throws IOException {
         super.write(bytes);
-        doFlush();
     }
 
     @Override
@@ -38,17 +38,17 @@ public class OutputStreamCLILogger extends OutputStream {
             return;
         }
         for (int i = 0 ; i < len ; i++) {
-            doWrite(b[off + i]);
+            write(b[off + i]);
         }
-        doFlush();
     }
 
     @Override
     public void write(int b) throws IOException {
         doWrite(b);
-        if (b == '\r' || b == '\n'){
+        if (lastCharacter == '\r' && b != '\n' || b == '\n'){
             doFlush();
         }
+        lastCharacter = (char) b;
     }
 
     protected void doFlush(){
@@ -71,5 +71,18 @@ public class OutputStreamCLILogger extends OutputStream {
         } else { // printable characters
             os.write(b);
         }
+    }
+
+    @Override
+    public void close() throws IOException {
+        if (os != null) {
+            doFlush();
+            os = null;
+        }
+    }
+
+    @Override
+    public void flush() throws IOException {
+        doFlush();
     }
 }
