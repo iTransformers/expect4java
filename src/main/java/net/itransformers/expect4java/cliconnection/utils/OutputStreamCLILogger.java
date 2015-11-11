@@ -44,9 +44,14 @@ public class OutputStreamCLILogger extends OutputStream {
 
     @Override
     public void write(int b) throws IOException {
-        doWrite(b);
-        if (lastCharacter == '\r' && b != '\n' || b == '\n'){
+        if (b == '\n'){
+            doWrite(b);
             doFlush();
+        } else if (lastCharacter == '\r'){
+            doFlush();
+            doWrite(b);
+        } else {
+            doWrite(b);
         }
         lastCharacter = (char) b;
     }

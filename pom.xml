@@ -6,12 +6,12 @@
 
     <groupId>iTransformers</groupId>
     <artifactId>expect4java</artifactId>
-    <version>1.1.10</version>
+    <version>1.1.11</version>
 
 
     <name>Expect for Java library</name>
     <description>This library is an implementation of DSL Expect for Java language</description>
-    <url>https://github.com/iTransformers</url>
+    <url>https://github.com/iTransformers/expect4java</url>
 
     <licenses>
         <license>
