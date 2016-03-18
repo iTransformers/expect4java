@@ -65,6 +65,7 @@ public class Expect4jImpl implements Expect4j, Runnable {
     }
 
     public Expect4jImpl(Reader reader, Writer writer) {
+        this.logger = LoggerFactory.getLogger(Expect4jImpl.class);
         this.reader = reader;
         this.writer = writer;
         init();
