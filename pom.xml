@@ -24,7 +24,7 @@
 
     <groupId>net.itransformers</groupId>
     <artifactId>expect4java</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <description>This library is an implementation of DSL Expect for Java language</description>
     <organization>
         <name>iTransformers Labs</name>
@@ -33,7 +33,7 @@
     <name>Expect for Java library</name>
     <url>https://github.com/iTransformers/expect4java</url>
     <issueManagement>
-        <url>https://github.com/iTransformers/snmp2xml4j/issues</url>
+        <url>https://github.com/iTransformers/expect4java/issues</url>
         <system>GitHub Issues</system>
     </issueManagement>
 
