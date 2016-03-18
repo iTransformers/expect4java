@@ -26,7 +26,6 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="examples" target="1.5" />
       <module name="expect4java" target="1.8" />
     </bytecodeTargetLevel>
   </component>
