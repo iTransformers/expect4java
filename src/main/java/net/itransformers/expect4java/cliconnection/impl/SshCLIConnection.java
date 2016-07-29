@@ -82,6 +82,8 @@ public class SshCLIConnection implements CLIConnection {
             }
             if (timeout != null) {
                 session.connect(timeout);
+            } else {
+                session.connect();
             }
             channel = (ChannelShell) session.openChannel("shell");
             inputStream = channel.getInputStream();
