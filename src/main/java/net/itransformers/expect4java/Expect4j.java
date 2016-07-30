@@ -26,8 +26,24 @@ import java.io.*;
 
 public interface Expect4j {
     void send(String str) throws IOException;
-    int expect(Match match);
-    int expect(Match[] matches);
+
+    /**
+     *
+     * @param match
+     * @return number of found characters in the match
+     * @throws TimeoutException will be thrown if the no match is found in the
+     * given timeout and not timeout match closure is found
+     */
+    int expect(Match match) throws TimeoutException;
+
+    /**
+     *
+     * @param matches
+     * @return number of found characters in the match
+     * @throws TimeoutException will be thrown if the no match is found in the
+     * given timeout and not timeout match closure is found
+     */
+    int expect(Match[] matches) throws TimeoutException;
     void setTimeout(TimeoutMatch timeoutMatch);
     void close() throws IOException;
     Reader getReader();

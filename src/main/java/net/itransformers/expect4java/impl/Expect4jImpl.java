@@ -20,6 +20,7 @@ package net.itransformers.expect4java.impl;
 
 import net.itransformers.expect4java.Closure;
 import net.itransformers.expect4java.Expect4j;
+import net.itransformers.expect4java.TimeoutException;
 import net.itransformers.expect4java.cliconnection.CLIConnection;
 import net.itransformers.expect4java.cliconnection.CLIStreamLogger;
 import net.itransformers.expect4java.cliconnection.utils.OutputStreamCLILogger;
@@ -90,7 +91,7 @@ public class Expect4jImpl implements Expect4j, Runnable {
     }
 
     @Override
-    public int expect(Match[] matches) {
+    public int expect(Match[] matches) throws TimeoutException{
         if (matches == null || matches.length == 0)
             throw new IllegalArgumentException("Input argument cannot be null or zero length.");
         StopWatch stopWatch = new StopWatch();
@@ -134,7 +135,7 @@ public class Expect4jImpl implements Expect4j, Runnable {
                     logger.debug("First pass no match found. Delta time=" + deltaTime);
                     if (deltaTime <= 0) {
                         if (timeoutMatch.getClosure() == null) {
-                            throw new RuntimeException("Expect timeouted, while expecting: " +
+                            throw new TimeoutException("Expect timeouted, while expecting: " +
                                     matchesToDump(matches) + " input buffer:" + buffer.toString());
                         }
                         logger.debug("Timeout exceeded. Invoking timeout closure");
