@@ -37,7 +37,15 @@ public class TelnetCLIConnection implements CLIConnection{
             if (!params.containsKey("port")) {
                 throw new IllegalArgumentException("no port parameter is specified");
             }
-            Integer port = (Integer) params.get("port");
+            Integer port = null;
+            Object portObj = params.get("port");
+            if (portObj instanceof String) {
+                port = Integer.parseInt((String) portObj);
+            } else if (portObj instanceof Integer) {
+                port = (Integer) portObj;
+            } else {
+                throw new IllegalArgumentException("Port parameter should be Integer or String: "+ portObj);
+            }
             telnet.connect((String) params.get("address"), port);
         } catch (IOException e) {
             e.printStackTrace();
