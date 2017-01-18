@@ -4,7 +4,69 @@ Implementation of expect language for java. Using java 8 closures
  
 [ ![Build Status for iTransformers/expect4java](https://codeship.com/projects/430386f0-d1cd-0133-b267-46ddfea9cbb7/status?branch=master)](https://codeship.com/projects/141646)
 
-This library is registers the following Groovy closures into the groovy script's bindings:
+# How to use this library
+1. Create CLIConnection instance
+2. Open the connection 
+4. Create Expext4j object using the created CLIConnection
+5. Close the Expect4j object
+6. Close the CLIConnection
+
+# Create CLIConnection object
+Expect4java has the following implemented CLIConnections:
+```
+net.itransformers.expect4java.cliconnection.impl.CrossPipedCLIConnection
+net.itransformers.expect4java.cliconnection.impl.EchoCLIConnection
+net.itransformers.expect4java.cliconnection.impl.LoggableCLIConnection
+net.itransformers.expect4java.cliconnection.impl.RawSocketCLIConnection
+net.itransformers.expect4java.cliconnection.impl.SshCLIConnection
+net.itransformers.expect4java.cliconnection.impl.TelnetCLIConnection
+```
+
+It is possible to implement your own CLIConnection by implementing the following interface:
+```
+net.itransformers.expect4java.cliconnection.CLIConnection
+```
+
+The SshCLIConnection and the TelnetCLIConnection are most commonly used.
+The LoggableCLIConnection follows the decorator pattern and add logging functionality to any CLIConnection.
+Here is an example:
+```
+CLIConnection sshConn = new LoggableCLIConnection(
+        new SshCLIConnection(),
+        msg -> System.out.println(">>> "+msg),
+        msg -> System.out.println("<<< "+msg)
+);
+```
+The first parameter of LoggaleCLIConnection is the CLIConnection to be wrapped.
+The second and the third parameter are objects of type CLIStreamLogger.
+
+# open CLIConnection
+The SSHClIConnection can be opened in the following way:
+```
+Map<String, Object> connParams = new HashMap<>();
+Properties config = new Properties();
+config.put("StrictHostKeyChecking", "no");
+config.put("PreferredAuthentications", "keyboard-interactive,password");
+connParams.put("username", "guest");
+connParams.put("password", "pass123");
+connParams.put("address", "vyordanov.tk");
+connParams.put("port", 22);
+connParams.put("timeout", 1000);
+connParams.put("config", config);
+
+sshConn.connect(connParams);
+```
+It is also possible to set UserInfo class to the connection (See the JSH documentation for more details)
+```
+UserInfo ui=new MySimpleUserInfo("pass123");
+connParams.put("userInfo", ui);
+```
+
+# Close the Expect4j object
+Awlays close the expect4j object. This will stop the internal thread by this object.
+
+# Close the CLIConnection
+Awlays close the CLICOnnection, to free os resources.
 
 send : SendClosure
 
