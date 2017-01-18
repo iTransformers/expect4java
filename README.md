@@ -40,7 +40,7 @@ CLIConnection sshConn = new LoggableCLIConnection(
 The first parameter of LoggaleCLIConnection is the CLIConnection to be wrapped.
 The second and the third parameter are objects of type CLIStreamLogger.
 
-# open CLIConnection
+# Open CLIConnection
 The SSHClIConnection can be opened in the following way:
 ```
 Map<String, Object> connParams = new HashMap<>();
@@ -61,6 +61,11 @@ It is also possible to set UserInfo class to the connection (See the JSH documen
 UserInfo ui=new MySimpleUserInfo("pass123");
 connParams.put("userInfo", ui);
 ```
+# Create Expect4j object
+This is quite simple:
+```
+Expect4j e4j = new Expect4jImpl(sshConn);
+```
 
 # Close the Expect4j object
 Awlays close the expect4j object. This will stop the internal thread by this object.
@@ -68,107 +73,107 @@ Awlays close the expect4j object. This will stop the internal thread by this obj
 # Close the CLIConnection
 Awlays close the CLICOnnection, to free os resources.
 
-send : SendClosure
+# Using the Expect4j object
+## Sending characters to process input stream
+This is done by using Expect4j.send method
 
-The send closure is used to send characters.
+Example:
+```
+e4j.send("say hello\r")
+```
 
-Example of invoking this closure is: send("say hello\r")
+## Expecting characters from process output stream
+This is done withe Expect4j.expect methods.
+The expect method has two overloads.
+### The first 'expect' overload is:
+```
+void expect(Match mathes)
+```
+Example of invoking this overload is:
+```
+e4j.expect(new RegExpMatch("hello ([^\n]*)\n", (ExpectContext context) -> {
+    System.out.println("Hello " + context.getMatch(1));
+    status.setValue(true);
+}));
+```
 
-expect : ExpectClosure
+### The second 'expect' overload is:
+```
+void expect(Match[] mathes)
+```
+Example of invoking this overload is:
+```
+e4j.expect(new Match[]{
+    new RegExpMatch("hello ([^\n]*)\n", (ExpectContext it) -> {
+        System.out.println("Hello " + it.getMatch(1));
+        firsMatch.setValue(true);
+        it.exp_continue();
+    }),
+    new RegExpMatch("hello2 ([^\n]*)\n", (ExpectContext context2) -> {
+        System.out.println("Hello2 " + context2.getMatch(1));
+        if (firsMatch.booleanValue()) status.setValue(true);
+    })
+});
+```
 
-The expect closure has several overloads:
+## Match class
+`net.itransformers.expect4java.matches.Match` is an abstract class used to match character from the process output.
+It has several child classes like:
+```
+net.itransformers.expect4java.matches.RegExpMatch
+net.itransformers.expect4java.matches.GlobMatch
+net.itransformers.expect4java.matches.EofMatch
+net.itransformers.expect4java.matches.TimeoutMatch
+```
 
-expect(string)
+### `RegExpMatch` class
+`Match` object used for matching characters received into input stream using regular expression pattern.
+This `Match` object can be used as an array element of parameter of expect method.
 
-Example of invoking this closure overload is: expect("login:")
-
-expect(string, closure)
-
-Example of invoking this closure overload is:
-
-expect("login:") {
- // the closure code invoked if there is a match
-}
-expect(Match[] mathes)
-
-Example of invoking this closure overload is:
-
-expect ([
-_gl("hello\r"){
-    println("Matched hello")
-    it.exp_continue()
-},
-_re("hello [0-9]+\r"){ net.itransformers.expect4java.ExpectContext expectState ->
-    println("Matched: "+expectState.getMatch())
-    expectState.exp_continue()
-}
-])
-_re : RegExpMatchClosure
-
-Match closure object used for matching characters received into input stream using regular expression pattern.
-
-This Match closure can be used as an array element of parameter of expect closure.
-
-The _re closure has two overloads:
-
-_re(string_re_pattern)
-_re(string_re_pattern,closure)
+The `RegExpMatch` constructor has two overloads:
+```
+RegExpMatch(String patternStr)
+RegExpMatch(String patternStr, Closure closure)
+```
 The second one has a closure parameter which will be invoked if the regexp matches.
 
-_gl : GlobMatchClosure
+### `GlobMatch` class 
+`Match` object used for matching characters received into input stream using glob pattern.
 
-Match closure object used for matching characters received into input stream using glob pattern.
+This Match object can be used as an array element of parameter of expect method.
 
-This Match closure can be used as an array element of parameter of expect closure.
+The `Glob` constructor has two overloads:
+```
+GlobMatch(String pattern
+GlobMatch(String pattern, Closure closure)
+```
+The second one has a closure parameter which will be invoked if the regexp matches.
 
-The _re closure has two overloads:
+### `TimeoutMatch` class
+Match object used to handle expect timeouts.
 
-_gl(string)
-_gl(string,closure) The second one has a closure parameter which will be invoked if the regexp matches.
-timeout : TimeoutMatchClosure
-
-Match closure object used to handle expect timeouts.
-
-This Match closure can be used as an array element of parameter of expect closure.
+This Match object can be used as an array element of parameter of expect method.
 
 For example:
-
-expect ([
-   timeout(){
+```
+e4j.expect(new TimeoutMatch(1000L, it -> {
     // some code is executed here if there is timeout
-   }
-])
+}));
+```
 or:
+```
+e4j.expect(new TimeoutMatch(1000L));
+```
+### `EofMatch` class
 
-expect ([
-   timeout(1000L)
-])
-eof : EofMatchClosure
-
-Inside each match closure the following object is available: net.itransformers.expect4java.ExpectContext.
+Inside each match closure the following object is available: `net.itransformers.expect4java.ExpectContext`.
 
 This object has the following most important methods:
-
+```
 void exp_continue();
 void exp_continue_reset_timer();
 String getBuffer();
 String getMatch(int groupnum);
 String getMatch();
 Registering groovy closures
-
-The above Groovy closures are registered into script bindings with one of the following overloads of createBindings method:
-
-void Expect4Groovy.createBindings(CLIConnection cliConnection, Binding binding, boolean withLogging);
-Map<String, Object> Expect4Groovy.createBindings(CLIConnection cliConnection);
-Map<String, Object> Expect4Groovy.createBindings(InputStream is, OutputStream os);
-Example:
-
-CLIConnection conn = new RawSocketCLIConnection()
-conn.connect(["user":"v","password":"123","address":"localhost:23"])
-Expect4Groovy.createBindings(conn, getBinding(), true)
-Another available connections are:
-
-net.itransformers.expect4groovy.cliconnection.impl.SshCLIConnection
-net.itransformers.expect4groovy.cliconnection.impl.EchoCLIConnection
-net.itransformers.expect4groovy.cliconnection.impl.RawSocketCLIConnection
-net.itransformers.expect4groovy.cliconnection.impl.TelnetCLIConnection
+```
