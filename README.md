@@ -3,8 +3,20 @@ Implementation of expect language for java. Using java 8 closures
 
  
 [ ![Build Status for iTransformers/expect4java](https://codeship.com/projects/430386f0-d1cd-0133-b267-46ddfea9cbb7/status?branch=master)](https://codeship.com/projects/141646)
-
 # How to use this library
+The library is registered in the central Maven repository.
+All you need to do is to add the following dependecy into your Maven project
+```
+<dependencies>
+    <dependency>
+        <groupId>net.itransformers</groupId>
+        <artifactId>expect4java</artifactId>
+        <version>1.0.5</version>
+    </dependency>
+</dependencies>
+```
+
+# How to use expect4java
 1. Create CLIConnection instance
 2. Open the connection 
 4. Create Expext4j object using the created CLIConnection
