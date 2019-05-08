@@ -40,6 +40,9 @@ public class LoggableCLIConnection implements CLIConnection {
     private CLIConnection cliConnection;
     private final CLIStreamLogger inStreamLogger;
     private CLIStreamLogger outStreamLogger;
+    private final char isLineTerminator;
+    private final char osLineTerminator;
+    private char lineTerminator;
 
     public LoggableCLIConnection(CLIConnection cliConnection) {
         this(cliConnection, message -> {
@@ -49,13 +52,22 @@ public class LoggableCLIConnection implements CLIConnection {
                     LoggerFactory.getLogger(Expect4jImpl.class).info("<<< " + message);
                 }
         );
-
     }
 
     public LoggableCLIConnection(CLIConnection cliConnection, CLIStreamLogger inStreamLogger, CLIStreamLogger outStreamLogger) {
+        this(cliConnection, inStreamLogger, outStreamLogger, '\n', '\n');
+    }
+
+    public LoggableCLIConnection(CLIConnection cliConnection,
+                                 CLIStreamLogger inStreamLogger,
+                                 CLIStreamLogger outStreamLogger,
+                                 char isLineTerminator,
+                                 char osLineTerminator) {
         this.cliConnection = cliConnection;
         this.inStreamLogger = inStreamLogger;
         this.outStreamLogger = outStreamLogger;
+        this.isLineTerminator = isLineTerminator;
+        this.osLineTerminator = osLineTerminator;
         if (inStreamLogger == null) {
             throw new IllegalArgumentException("Input logger cannot be null");
         }
@@ -69,8 +81,8 @@ public class LoggableCLIConnection implements CLIConnection {
         cliConnection.connect(params);
         InputStream origIs = cliConnection.inputStream();
         OutputStream origOs = cliConnection.outputStream();
-        is = new TeeInputStream(origIs, new OutputStreamCLILogger(inStreamLogger));
-        os = new TeeOutputStream(origOs, new OutputStreamCLILogger(outStreamLogger));
+        is = new TeeInputStream(origIs, new OutputStreamCLILogger(inStreamLogger, isLineTerminator));
+        os = new TeeOutputStream(origOs, new OutputStreamCLILogger(outStreamLogger, osLineTerminator));
     }
 
     @Override

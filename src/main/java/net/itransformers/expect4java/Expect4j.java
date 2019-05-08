@@ -29,7 +29,7 @@ public interface Expect4j {
 
     /**
      *
-     * @param match
+     * @param match what we expect to match
      * @return number of found characters in the match
      * @throws TimeoutException will be thrown if the no match is found in the
      * given timeout and not timeout match closure is found
@@ -38,7 +38,7 @@ public interface Expect4j {
 
     /**
      *
-     * @param matches
+     * @param matches what we expect to match
      * @return number of found characters in the match
      * @throws TimeoutException will be thrown if the no match is found in the
      * given timeout and not timeout match closure is found

@@ -26,18 +26,20 @@ import java.io.OutputStream;
 
 public class OutputStreamCLILogger extends OutputStream {
     CLIStreamLogger logger;
-    char lastCharacter;
+    private char lineTerminator;
 
     protected ByteArrayOutputStream os;
 
-    public OutputStreamCLILogger(CLIStreamLogger logger) {
+    public OutputStreamCLILogger(CLIStreamLogger logger, char lineTerminator) {
+        this.lineTerminator = lineTerminator;
         os = new ByteArrayOutputStream();
         this.logger = logger;
     }
 
-    public OutputStreamCLILogger(CLIStreamLogger logger, int size) {
+    public OutputStreamCLILogger(CLIStreamLogger logger, int size, char lineTerminator) {
         os = new ByteArrayOutputStream(size);
         this.logger = logger;
+        this.lineTerminator = lineTerminator;
     }
 
     @Override
@@ -62,16 +64,12 @@ public class OutputStreamCLILogger extends OutputStream {
 
     @Override
     public void write(int b) throws IOException {
-        if (b == '\n'){
+        if (b == lineTerminator){
             doWrite(b);
             doFlush();
-        } else if (lastCharacter == '\r'){
-            doFlush();
-            doWrite(b);
         } else {
             doWrite(b);
         }
-        lastCharacter = (char) b;
     }
 
     protected void doFlush(){
