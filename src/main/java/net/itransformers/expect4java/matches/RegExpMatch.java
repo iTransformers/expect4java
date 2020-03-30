@@ -24,7 +24,7 @@ import org.apache.oro.text.regex.Pattern;
 import org.apache.oro.text.regex.Perl5Compiler;
 
 public class RegExpMatch extends Match {
-    private static Perl5Compiler compiler = new Perl5Compiler();
+    private Perl5Compiler compiler = new Perl5Compiler();
     Pattern pattern;
     protected String patternStr;
 

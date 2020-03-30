@@ -24,7 +24,7 @@
 
     <groupId>net.itransformers</groupId>
     <artifactId>expect4java</artifactId>
-    <version>1.0.6</version>
+    <version>1.0.7</version>
     <description>This library is an implementation of DSL Expect for Java language</description>
     <organization>
         <name>iTransformers Labs</name>
